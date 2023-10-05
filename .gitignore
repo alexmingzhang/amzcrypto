@@ -1,3 +1,10 @@
+.vscode
+bin
+build
+doc/html
+doc/latex
+**/*.DS_Store
+
 # Prerequisites
 *.d
 
