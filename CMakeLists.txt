@@ -18,12 +18,15 @@ add_executable(aes_appendix_c_test tests/aes_appendix_c_test.cpp)
 add_executable(aes_benchmark tests/aes_benchmark.cpp)
 add_executable(aes_constexpr_test tests/aes_constexpr_test.cpp)
 add_executable(chunkyint_benchmark tests/chunkyint_benchmark.cpp)
-target_link_libraries(chunkyint_benchmark OpenSSL::SSL OpenSSL::Crypto)
-add_executable(chunkyint_test tests/chunkyint_test.cpp)
-target_link_libraries(chunkyint_test OpenSSL::SSL OpenSSL::Crypto)
+add_executable(chunkyint_mod_exp_test tests/chunkyint_mod_exp_test.cpp)
+add_executable(chunkyint_miller_rabin_test tests/chunkyint_miller_rabin_test.cpp)
 add_executable(sha1_benchmark tests/sha1_benchmark.cpp)
 add_executable(sha1_compiletime_test tests/sha1_compiletime_test.cpp)
 add_executable(sha1_smalltest tests/sha1_smalltest.cpp)
+
+target_link_libraries(chunkyint_benchmark OpenSSL::SSL OpenSSL::Crypto)
+target_link_libraries(chunkyint_mod_exp_test OpenSSL::SSL OpenSSL::Crypto)
+target_link_libraries(chunkyint_miller_rabin_test OpenSSL::SSL OpenSSL::Crypto)
 
 # Demo executables
 add_executable(chunkyint_diffie_hellman demos/chunkyint_diffie_hellman.cpp)
