@@ -12,9 +12,6 @@
 
 #include "sha1.hpp"
 
-// TODO: remove this
-using namespace amzcrypto;
-
 std::string random_string(std::size_t len) {
     static std::random_device rd;
     static std::mt19937 rng{rd()};
@@ -32,7 +29,7 @@ std::string random_string(std::size_t len) {
     return to_return;
 }
 
-void print_digest(const std::array<SHA1::word_t, 5>& digest) {
+void print_digest(const std::array<amzcrypto::SHA1::word_t, 5>& digest) {
     for (auto word : digest) {
         std::cout << std::setw(8) << std::setfill('0') << std::hex << word;
     }
@@ -42,7 +39,7 @@ void print_digest(const std::array<SHA1::word_t, 5>& digest) {
 template <std::size_t N>
     requires(N <= 32)
 std::bitset<N> truncated_hash(const std::string& m) {
-    return std::bitset<N>(SHA1::hash(m)[0]);
+    return std::bitset<N>(amzcrypto::SHA1::hash(m)[0]);
 }
 
 bool is_printable(char c) { return (c >= 0x20) && (c <= 0x7e); }

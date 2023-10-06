@@ -1,3 +1,5 @@
+#include <openssl/aes.h>
+
 #include <chrono>
 #include <cstdint>
 #include <iostream>
@@ -13,26 +15,25 @@ AES::Byte random_byte() {
     return AES::Byte{dist(rng)};
 }
 
-std::size_t random_index() {
-    static std::mt19937 rng(std::random_device{}());
-    static std::uniform_int_distribution<std::size_t> dist(0, 15);
-    return dist(rng);
-}
-
 volatile std::uint8_t sink;
 
 int main() {
     AES::byte_block_t plaintext;
-    AES::byte_block_t ciphertext;
+    AES::byte_block_t ciphertext_amzcrypto;
+    unsigned char ciphertext_openssl[16];
 
-    AES::Engine<4>::cipher_key_t key;
-    for (AES::Byte& byte : key) {
+    AES::Engine<4>::cipher_key_t key_amzcrypto;
+    for (AES::Byte& byte : key_amzcrypto) {
         byte = random_byte();
     }
+    AES::Engine<4> aes(key_amzcrypto);
 
-    AES::Engine<4> aes(key);
+    AES_KEY key_openssl;
+    AES_set_encrypt_key(reinterpret_cast<unsigned char*>(key_amzcrypto.data()),
+                        128, &key_openssl);
 
-    std::chrono::duration<double> accumulated_time(0);
+    std::chrono::nanoseconds amzcrypto_elapsed{};
+    std::chrono::nanoseconds openssl_elapsed{};
 
     constexpr int num_blocks_to_encrypt = 10000;
 
@@ -41,18 +42,29 @@ int main() {
             byte = random_byte();
         }
 
-        std::size_t index = random_index();
-        auto start_time = std::chrono::high_resolution_clock::now();
-        ciphertext = aes.cipher(plaintext);
-        auto end_time = std::chrono::high_resolution_clock::now();
+        auto start = std::chrono::high_resolution_clock::now();
+        ciphertext_amzcrypto = aes.cipher(plaintext);
+        auto stop = std::chrono::high_resolution_clock::now();
+        amzcrypto_elapsed += stop - start;
 
-        sink = ciphertext[index].get_value();
+        start = std::chrono::high_resolution_clock::now();
+        AES_encrypt(reinterpret_cast<unsigned char*>(plaintext.data()),
+                    ciphertext_openssl, &key_openssl);
+        stop = std::chrono::high_resolution_clock::now();
+        openssl_elapsed += stop - start;
 
-        accumulated_time += end_time - start_time;
+        for (int i = 0; i < 16; ++i) {
+            assert(ciphertext_amzcrypto[i].get_value() ==
+                   ciphertext_openssl[i]);
+        }
     }
 
-    std::cout << "Encrypted " << num_blocks_to_encrypt * 16 << " bytes in "
-              << accumulated_time << " seconds.\n";
+    std::cout << "amzcrypto: "
+              << amzcrypto_elapsed / static_cast<double>(num_blocks_to_encrypt)
+              << " per block.\n";
+    std::cout << "OpenSSL:   "
+              << openssl_elapsed / static_cast<double>(num_blocks_to_encrypt)
+              << " per block.\n";
 
     return 0;
 }
