@@ -3,6 +3,7 @@
 #include <cstring>
 #include <iomanip>
 #include <iostream>
+#include <tuple>
 
 #include "chunkyint.hpp"
 

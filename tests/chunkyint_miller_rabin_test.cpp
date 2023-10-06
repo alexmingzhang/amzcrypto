@@ -18,8 +18,7 @@ int main() {
     for (std::size_t i = 0; i < num_iterations; ++i) {
         if (i % 100 == 0) {
             std::cout << num_successful << "/" << i
-                      << " successful ChunkyInt modular exponentiation "
-                         "operations.\n";
+                      << " successful miller-rabin checks.\n";
         }
 
         ChunkyInts::ChunkyInt p;

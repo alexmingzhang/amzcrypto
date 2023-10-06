@@ -52,7 +52,8 @@ int main() {
               << " successful ChunkyInt modular exponentiation "
                  "operations.\n";
 
-    std::cout << "OpenSSL modular exponentiation: " << mod_exp_elapsed << '\n';
+    std::cout << "OpenSSL modular exponentiation:   " << mod_exp_elapsed
+              << '\n';
 
     std::cout << "ChunkyInt modular exponentiation: " << mod_exp_cool_elapsed
               << '\n';
